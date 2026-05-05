@@ -1,0 +1,559 @@
+---
+title: "Case Study 3"
+author: "Doris Mbitazi Asongafac"
+date: "2025-03-18"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+# Loading the necessary packages
+library(tseries)
+library(quantmod)
+library(lubridate)
+library(readxl)
+```
+
+
+```{r}
+# Read in the data sets
+dow_jones = read.csv("/Users/doris/OneDrive/Documents/DA6813/dow_jones_index.data")
+SP500Data <- read.csv("/Users/doris/OneDrive/Documents/DA6813/Download Data - INDEX_US_S&P US_SPX.csv", header=TRUE, sep=",") 
+
+```
+
+
+```{r}
+# Remove any missing values if needed
+ dow_jones = na.omit(dow_jones)
+anyNA(dow_jones)
+
+SP500Data = na.omit(SP500Data)
+anyNA(SP500Data)
+```
+
+
+```{r}
+# See what the data classes are
+str(dow_jones)
+
+```
+
+```{r}
+#  Convert misclassified columns to the correct format
+dow_jones$open=as.numeric(gsub("\\$","",dow_jones$open))
+
+dow_jones$high=as.numeric(gsub("\\$","",dow_jones$high))
+
+dow_jones$low=as.numeric(gsub("\\$","",dow_jones$low))
+
+dow_jones$close=as.numeric(gsub("\\$","",dow_jones$close))
+
+dow_jones$next_weeks_open=as.numeric(gsub("\\$","",dow_jones$next_weeks_open))
+
+dow_jones$next_weeks_close=as.numeric(gsub("\\$","",dow_jones$next_weeks_close))
+
+dow_jones$date <- mdy(dow_jones$date)
+                      
+dow_jones$stock = as.factor(dow_jones$stock)
+dow_jones$quarter = as.factor(dow_jones$quarter)
+```
+
+
+```{r}
+# Verify the change
+str(dow_jones)
+
+```
+```{r}
+str(SP500Data)
+
+```
+
+
+```{r}
+#Rename for consistency
+SP500Data$Date <- as.Date(SP500Data$Date, format="%m/%d/%Y")
+SP500Data$Open <- as.numeric(gsub(",", "", SP500Data$Open))
+SP500Data$High <- as.numeric(gsub(",", "", SP500Data$High))
+SP500Data$Low <- as.numeric(gsub(",", "", SP500Data$Low))
+SP500Data$Close <- as.numeric(gsub(",", "", SP500Data$Close))
+
+
+str(SP500Data)
+
+```
+```{r}
+colnames(SP500Data)[colnames(SP500Data) == "Date"] <- "date"
+```
+
+```{r}
+summary(SP500Data)
+summary(dow_jones)
+```
+
+
+
+```{r}
+Dow = split(dow_jones, dow_jones$stock)
+```
+
+
+```{r}
+# Compute the returns and remove any missing values. 
+ReturnAA = na.omit(Delt(Dow$AA[,7]))
+ReturnAXP = na.omit(Delt(Dow$AXP[,7]))
+ReturnBA = na.omit(Delt(Dow$BA[,7]))
+ReturnBAC = na.omit(Delt(Dow$BAC[,7]))
+ReturnCAT = na.omit(Delt(Dow$CAT[,7]))
+ReturnCSCO = na.omit(Delt(Dow$CSCO[,7]))
+ReturnCVX = na.omit(Delt(Dow$CVX[,7]))
+ReturnDD = na.omit(Delt(Dow$DD[,7]))
+ReturnDIS = na.omit(Delt(Dow$DIS[,7]))
+ReturnGE = na.omit(Delt(Dow$GE[,7]))
+ReturnHD = na.omit(Delt(Dow$HD[,7]))
+ReturnHPQ =na.omit(Delt(Dow$HPQ[,7]))
+ReturnIBM = na.omit(Delt(Dow$IBM[,7]))
+ReturnINTC = na.omit(Delt(Dow$INTC[,7]))
+ReturnJNJ = na.omit(Delt(Dow$JNJ[,7]))
+ReturnJPM = na.omit(Delt(Dow$JPM[,7]))
+ReturnKO = na.omit(Delt(Dow$KO[,7]))
+ReturnKRFT = na.omit(Delt(Dow$KRFT[,7]))
+ReturnMCD = na.omit(Delt(Dow$MCD[,7]))
+ReturnMMM = na.omit(Delt(Dow$MMM[,7]))
+ReturnMRK = na.omit(Delt(Dow$MRK[,7]))
+ReturnMSFT = na.omit(Delt(Dow$MSFT[,7]))
+ReturnPFE = na.omit(Delt(Dow$PFE[,7]))
+ReturnPG = na.omit(Delt(Dow$PG[,7]))
+ReturnT = na.omit(Delt(Dow$T[,7]))
+ReturnTRV = na.omit(Delt(Dow$TRV[,7]))
+ReturnUTX = na.omit(Delt(Dow$UTX[,7]))
+ReturnVZ = na.omit(Delt(Dow$VZ[,7]))
+ReturnWMT = na.omit(Delt(Dow$WMT[,7]))
+ReturnXOM = na.omit(Delt(Dow$XOM[,7]))
+ReturnSP500 = na.omit(Delt(SP500Data[,5]))
+```
+
+
+```{r}
+# Merge the returns of all stocks into single data
+MyData = cbind(ReturnSP500,
+               ReturnAA,
+               ReturnAXP,
+               ReturnBA,
+               ReturnBAC,
+               ReturnCAT,
+               ReturnCSCO,
+               ReturnCVX,
+               ReturnDD,
+               ReturnDIS,
+               ReturnGE,
+               ReturnHD,
+               ReturnHPQ,
+               ReturnIBM,
+               ReturnINTC,
+               ReturnJNJ,
+               ReturnJPM,
+               ReturnKO,
+               ReturnKRFT,
+               ReturnMCD,
+               ReturnMMM,
+               ReturnMRK,
+               ReturnMSFT,
+               ReturnPFE,
+               ReturnPG,
+               ReturnT,
+               ReturnTRV,
+               ReturnUTX,
+               ReturnVZ,
+               ReturnWMT,
+               ReturnXOM)
+
+
+```
+
+
+```{r}
+# Weekly Return of Investment of Interest
+colnames(MyData) = c("SP500", "AA", "AXP", "BA", "BAC", "CAT", "CSCO", "CVX", "DD", "DIS", "GE", "HD", "HPQ", "IBM", "INTC", "JNJ", "JPM", "KO", "KRFT", "MCD", "MMM", "MRK", "MSFT", "PFE", "PG", "T", "TRV", "UTX",
+                     "VZ", "WMT", "XOM")
+head(MyData)
+```
+
+```{r}
+boxplot(MyData, 
+        main = "Expected Return", 
+        xlab = "Stock Picks ", 
+        ylab = "Return", 
+        col = "lightblue", 
+        las = 2) # Rotate labels for readability
+
+```
+
+
+
+```{r}
+# Compute mean and stdev for the returns.
+DataMean=apply(MyData, 2, mean)
+DataSD=apply(MyData, 2, sd)
+
+# Take a look at the means and standard deviations. 
+cbind(DataMean,DataSD)
+```
+
+
+```{r}
+# Using LM here as interpretation 
+# is key. 
+# Linear Regression models
+
+# Model AA
+lm.AA <- lm(AA ~ SP500, data = as.data.frame(MyData))
+summary(lm.AA)
+BetaAA <- summary(lm.AA)$coefficients[2, 1]
+
+```
+
+```{r}
+# Model AXP
+lm.AXP <- lm(AXP ~ SP500, data = as.data.frame(MyData))
+summary(lm.AXP)
+BetaAXP <- summary(lm.AXP)$coefficients[2, 1]
+```
+
+```{r}
+#Model BA
+lm.BA <- lm(BA ~ SP500, data = as.data.frame(MyData))
+summary(lm.BA)
+BetaBA <- summary(lm.BA)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model BAC
+lm.BAC <- lm(BAC ~ SP500, data = as.data.frame(MyData))
+summary(lm.BAC)
+BetaBAC <- summary(lm.BAC)$coefficients[2, 1]
+```
+
+```{r}
+#Model for CAT
+lm.CAT <- lm(CAT ~ SP500, data = as.data.frame(MyData))
+summary(lm.CAT)
+BetaCAT <- summary(lm.CAT)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for CSCO
+lm.CSCO <- lm(CSCO ~ SP500, data = as.data.frame(MyData))
+summary(lm.CSCO)
+BetaCSCO <- summary(lm.CSCO)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for CVX
+lm.CVX <- lm(CVX ~ SP500, data = as.data.frame(MyData))
+summary(lm.CVX)
+BetaCVX <- summary(lm.CVX)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for DD
+lm.DD <- lm(DD ~ SP500, data = as.data.frame(MyData))
+summary(lm.DD)
+BetaDD <- summary(lm.DD)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for DIS
+lm.DIS <- lm(DIS ~ SP500, data = as.data.frame(MyData))
+summary(lm.DIS)
+BetaDIS <- summary(lm.DIS)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for GE
+lm.GE <- lm(GE ~ SP500, data = as.data.frame(MyData))
+summary(lm.GE)
+BetaGE <- summary(lm.GE)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for HD
+lm.HD <- lm(HD ~ SP500, data = as.data.frame(MyData))
+summary(lm.HD)
+BetaHD <- summary(lm.HD)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for HPQ
+lm.HPQ <- lm(HPQ ~ SP500, data = as.data.frame(MyData))
+summary(lm.HPQ)
+BetaHPQ <- summary(lm.HPQ)$coefficients[2, 1]
+
+
+```
+
+```{r}
+#Model for IBM
+lm.IBM <- lm(IBM ~ SP500, data = as.data.frame(MyData))
+summary(lm.IBM)
+BetaIBM <- summary(lm.IBM)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for INTC
+lm.INTC <- lm(INTC ~ SP500, data = as.data.frame(MyData))
+summary(lm.INTC)
+BetaINTC <- summary(lm.INTC)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for JNJ
+lm.JNJ <- lm(JNJ ~ SP500, data = as.data.frame(MyData))
+summary(lm.JNJ)
+BetaJNJ <- summary(lm.JNJ)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for JPM
+lm.JPM <- lm(JPM ~ SP500, data = as.data.frame(MyData))
+summary(lm.JPM)
+BetaJPM <- summary(lm.JPM)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for KO
+lm.KO <- lm(KO ~ SP500, data = as.data.frame(MyData))
+summary(lm.KO)
+BetaKO <- summary(lm.KO)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for KRFT
+lm.KRFT <- lm(KRFT ~ SP500, data = as.data.frame(MyData))
+summary(lm.KO)
+BetaKRFT <- summary(lm.KRFT)$coefficients[2, 1]
+
+
+```
+
+```{r}
+#Model for MCD
+lm.MCD <- lm(MCD ~ SP500, data = as.data.frame(MyData))
+summary(lm.MCD)
+BetaMCD <- summary(lm.MCD)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for MMM
+lm.MMM <- lm(MMM ~ SP500, data = as.data.frame(MyData))
+summary(lm.MMM)
+BetaMMM <- summary(lm.MMM)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for MRK
+lm.MRK <- lm(MRK ~ SP500, data = as.data.frame(MyData))
+summary(lm.MRK)
+BetaMRK <- summary(lm.MRK)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for MSFT
+lm.MSFT <- lm(MSFT ~ SP500, data = as.data.frame(MyData))
+summary(lm.MSFT)
+BetaMSFT <- summary(lm.MSFT)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for PFE
+lm.PFE <- lm(PFE ~ SP500, data = as.data.frame(MyData))
+summary(lm.PFE)
+BetaPFE <- summary(lm.PFE)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for PG
+lm.PG <- lm(PG ~ SP500, data = as.data.frame(MyData))
+summary(lm.PG)
+BetaPG <- summary(lm.PG)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for T
+lm.T <- lm(T ~ SP500, data = as.data.frame(MyData))
+summary(lm.T)
+BetaT <- summary(lm.T)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for TRV
+lm.TRV <- lm(TRV ~ SP500, data = as.data.frame(MyData))
+summary(lm.TRV)
+BetaTRV <- summary(lm.TRV)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for UTX
+lm.UTX <- lm(UTX ~ SP500, data = as.data.frame(MyData))
+summary(lm.UTX)
+BetaUTX <- summary(lm.UTX)$coefficients[2, 1]
+```
+
+```{r}
+#Model for VZ
+lm.VZ <- lm(VZ ~ SP500, data = as.data.frame(MyData))
+summary(lm.VZ)
+BetaVZ <- summary(lm.VZ)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for WMT
+lm.WMT <- lm(WMT ~ SP500, data = as.data.frame(MyData))
+summary(lm.WMT)
+BetaWMT <- summary(lm.WMT)$coefficients[2, 1]
+
+```
+
+```{r}
+#Model for XOM
+lm.XOM <- lm(XOM ~ SP500, data = as.data.frame(MyData))
+summary(lm.XOM)
+BetaXOM <- summary(lm.XOM)$coefficients[2, 1]
+```
+
+
+```{r}
+# Display betas
+paste("Beta of AA: ", BetaAA)
+paste("Beta of AXP: ", BetaAXP)
+paste("Beta of BA: ", BetaBA)
+paste("Beta of BAC: ", BetaBAC)
+paste("Beta of CAT: ", BetaCAT)
+paste("Beta of CSCO: ", BetaCSCO)
+paste("Beta of CVX: ", BetaCVX)
+paste("Beta of DD: ", BetaDD)
+paste("Beta of DIS: ", BetaDIS)
+paste("Beta of GE: ", BetaGE)
+paste("Beta of HD: ", BetaHD)
+paste("Beta of HPQ: ", BetaHPQ)
+paste("Beta of IBM: ", BetaIBM)
+paste("Beta of INTC: ", BetaINTC)
+paste("Beta of JNJ: ", BetaJNJ)
+paste("Beta of JPM: ", BetaJPM)
+paste("Beta of KO: ", BetaKO)
+paste("Beta of KRFT: ", BetaKRFT)
+paste("Beta of MCD: ", BetaMCD)
+paste("Beta of MMM: ", BetaMMM)
+paste("Beta of MRK: ", BetaMRK)
+paste("Beta of MSFT: ", BetaMSFT)
+paste("Beta of PFE: ", BetaPFE)
+paste("Beta of PG: ", BetaPG)
+paste("Beta of T: ", BetaT)
+paste("Beta of TRV: ", BetaTRV)
+paste("Beta of UTX: ", BetaUTX)
+paste("Beta of VZ: ", BetaVZ)
+paste("Beta of WMT: ", BetaWMT)
+paste("Beta of XOM: ", BetaXOM)
+```
+
+```{r}
+# Treasury data
+treasury <- read_excel("/Users/doris/OneDrive/Documents/Treasury.xlsx")
+str(treasury)
+```
+
+
+```{r}
+colSums(is.na(treasury))
+```
+```{r}
+# Remove leading and trailing spaces from all column names
+colnames(treasury) <- trimws(colnames(treasury))
+
+# Check the column names again
+colnames(treasury)
+
+
+```
+
+
+```{r}
+# Print the exact column names with quotation marks to see any hidden characters
+print(colnames(treasury))
+
+# Fix column names by completely redefining them
+colnames(treasury) <- c("Date", "Open", "High", "Low", "Close", "AdjClose", "Volume")
+
+# Now try to access the Close column
+average_risk_free_rate <- mean(treasury$Close, na.rm = TRUE)
+cat("The average risk-free rate is:", round(average_risk_free_rate, 4), "\n")
+
+
+```
+
+
+```{r}
+# Define risk-free rate (using the average from your Treasury data)
+Rf <- 3.3133/100  # Convert percentage to decimal
+
+# Calculate the average market return (S&P500)
+market_return <- mean(MyData[, "SP500"], na.rm = TRUE)
+
+# Calculate excess market return
+excess_market_return <- market_return - Rf
+
+# Initialize a dataframe to store results
+results <- data.frame(Stock = colnames(MyData)[-1],  # Exclude S&P500
+                      Beta = numeric(ncol(MyData) - 1),
+                      ExpectedReturn = numeric(ncol(MyData) - 1))
+
+# Calculate beta and expected returns for each stock
+for (i in 2:ncol(MyData)) {
+  # Calculate beta using covariance/variance
+  stock_returns <- MyData[, i]
+  market_returns <- MyData[, "SP500"]
+  
+  # Beta calculation
+  beta <- cov(stock_returns, market_returns, use = "complete.obs") / 
+          var(market_returns, na.rm = TRUE)
+  
+  # Expected return using CAPM
+  expected_return <- Rf + beta * excess_market_return
+  
+  # Store results
+  stock_idx <- i - 1
+  results$Beta[stock_idx] <- beta
+  results$ExpectedReturn[stock_idx] <- expected_return * 100  # Convert to percentage
+}
+
+# Print results
+print(results)
+```
+
+
+
+
